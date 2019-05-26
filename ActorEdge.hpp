@@ -10,7 +10,10 @@
 #ifndef ACTOREDGE_HPP
 #define ACTOREDGE_HPP
 
+#include "ActorNode.hpp"
 #include <string.h>
+
+class ActorNode; // Define ActorNode
 
 using namespace std;
 
@@ -41,7 +44,7 @@ public:
 		int compareYear = ((this->year) == (other->year)) ? 1 : 0;
 		
 		// Return true if equal, else false
-		if (compareName && compareYear)
+		if ((compareName == 0) && compareYear)
 			return true;
 
 		return false;

@@ -12,10 +12,21 @@
 
 #include <queue>
 #include <utility>
+#include <string.h>
+#include "ActorEdge.hpp"
+
+class ActorEdge; // Define Actor Edge class
 
 using namespace std;
 
 typedef std::pair <ActorEdge *, ActorNode *> branch; // Define a edge-node pair
+
+/** The comparator used in sorting points based on edge weight*/
+struct compareEdge {
+	bool operator() (const branch & p1, const branch & p2) {
+		return p1.first->year < p2.first->year;
+	}
+};
 
 /** A class, instances of which are nodes in an ACTORTree. 
  * Member variables store the actor name, distance and previous
@@ -38,14 +49,16 @@ public:
 	// Add edge and neighbor to movies list
 	void addNeighbor(ActorEdge * edgeIn, ActorNode * neighbor);
 
-	// Compare nodes
-	bool equals(ActorNode * p1, ActorNode * p2);
-};
+	// Check if two nodes are equal
+	bool operator==(ActorNode * const & other) const {
+		// Compare movie names
+		int compareName = strcmp(this->name, other->name);
+		
+		// Return true if equal, else false
+		if (compareName == 0)
+			return true;
 
-/** The comparator used in sorting points based on edge weight*/
-struct compareEdge {
-    bool operator() (const branch & p1, const branch & p2) {
-		return p1.first->year < p2.first->year;
+		return false;
 	}
-}
+};
 #endif // ACTORNODE_HPP

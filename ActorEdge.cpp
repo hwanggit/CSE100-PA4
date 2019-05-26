@@ -7,6 +7,8 @@
  * Sources: Piazza
  */
 
+#include "ActorEdge.hpp"
+
 using namespace std;
 
 // Constructor for ActorEdge, initializes member variables
