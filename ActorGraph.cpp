@@ -12,7 +12,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <vector>
 #include "ActorGraph.hpp"
 
 using namespace std;
@@ -47,10 +46,10 @@ unsigned int ActorGraph::bSearchActor(ActorNode * item) {
 /**
 * Helper method to binary search for given edge in movie list 
 */
-unsigned int ActorGraph::bSearchMovie(ActorEdge * item) {
+unsigned int ActorGraph::bSearchEdge(ActorEdge * item) {
 	// Get low and high of vector
 	unsigned int lowInd = 0;
-	unsigned int highInd = movies.size()-1;
+	unsigned int highInd = edges.size()-1;
 	unsigned int middle = 0;
 
 	// Get mid value and narrow down array by half
@@ -58,7 +57,7 @@ unsigned int ActorGraph::bSearchMovie(ActorEdge * item) {
 		// Halve the array each time and search subarray
 		middle = ((highInd - lowInd)/2)+lowInd;
 		// Return index if found
-		if (item == movies[middle]) {
+		if (item == edges[middle]) {
 			return middle;
 		}
 	}
@@ -107,32 +106,32 @@ bool ActorGraph::insertActor(ActorNode * item) {
 }
 
 /** Return the pointer to the edge*/
-ActorEdge * ActorGraph::findMovie(ActorEdge * item) {
+ActorEdge * ActorGraph::findEdge(ActorEdge * item) {
 	// Search correct index for item
-	unsigned int index = bSearchMovie(item);
+	unsigned int index = bSearchEdge(item);
 		
 	// If not found, return 
-	if (movies[index] == item) {
-		return movies[index];
+	if (edges[index] == item) {
+		return edges[index];
 	}
 	return nullptr;
 }
 	
 /** Insert item into sorted position */
-bool ActorGraph::insertMovie(ActorEdge * item) {
+bool ActorGraph::insertEdge(ActorEdge * item) {
 	// If array is empty, simply push to array
-	if (!movies.size()) {
-		movies.push_back(item);
+	if (!edges.size()) {
+		edges.push_back(item);
 		return true;
 	}
 	// Search correct index for item
-	unsigned int index = bSearchMovie(item);
+	unsigned int index = bSearchEdge(item);
 
 	// Create a new iterator for v
-	vector<ActorEdge *>::iterator itr = movies.begin();
+	vector<ActorEdge *>::iterator itr = edges.begin();
 		
 	// If already exists, return false
-	if (movies[index] == item) {
+	if (edges[index] == item) {
 		return false;
 	}
 
@@ -140,7 +139,7 @@ bool ActorGraph::insertMovie(ActorEdge * item) {
 	advance(itr, index);
 	
 	// Insert node
-	movies.insert(itr, item);
+	edges.insert(itr, item);
 	
 	// return true
 	return true;
@@ -163,6 +162,10 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 
     bool have_header = false;
   
+	// Define previous actor name, and node
+	string prevActor = "";
+	ActorNode * currNode;
+
     // keep reading lines until the end of file is reached
     while (infile) {
         string s;
@@ -194,13 +197,50 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
             // we should have exactly 3 columns
             continue;
         }
-
+		
+		// Get the name, movie, year
         string actor_name(record[0]);
         string movie_title(record[1]);
         int movie_year = stoi(record[2]);
-    
-        // TODO: we have an actor/movie relationship, now what?
-    }
+		string movie_and_year(record[1] + record[2]);
+
+		// If different actor, create new node and insert
+		if (prevActor.compare(actor_name) != 0) {
+			// Create new actor
+			currNode = new ActorNode(actor_name);
+
+			// Insert actor into list
+			insertActor(currNode);
+		}
+
+		// Insert movie to actor
+		currNode->insertMovie(movie_and_year);
+
+		// Search all previous actor's movie list for matches and make edges
+		for (unsigned int i=0; i<actors.size(); i++) {
+			// If same actor, continue
+			if (actors[i] == currNode) {
+				continue;
+			}
+
+			// If found, create new edge
+			if (actors[i]->findMovie(movie_and_year)) {
+				// Otherwise create new edge and link dependencies
+				ActorEdge * edge = new ActorEdge(movie_title, movie_year, 
+													currNode, actors[i]);
+				
+				// Add edge to list
+				insertEdge(edge);
+
+				// For each node, add edge to their lists
+				actors[i]->addNeighbor(edge, currNode);
+				currNode->addNeighbor(edge, actors[i]);
+			}
+		}
+
+		// Set previous actor name
+		prevActor = actor_name;
+	}
 
     if (!infile.eof()) {
         cerr << "Failed to read " << in_filename << "!\n";
@@ -219,7 +259,7 @@ ActorGraph::~ActorGraph() {
 	}
 
 	// Delete all actors and edges
-	for (unsigned int j=0; j<movies.size(); j++) {
-		delete (movies[j]);
+	for (unsigned int j=0; j<edges.size(); j++) {
+		delete (edges[j]);
 	}
 }

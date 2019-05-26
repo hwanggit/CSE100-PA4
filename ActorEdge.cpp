@@ -12,7 +12,7 @@
 using namespace std;
 
 // Constructor for ActorEdge, initializes member variables
-ActorEdge::ActorEdge(const char * name, int year, ActorNode * node1, 
+ActorEdge::ActorEdge(std::string name, int year, ActorNode * node1, 
 						ActorNode * node2) : movieName(name), year(year) {
 	// set actors to passed in variables
 	actor1 = node1;

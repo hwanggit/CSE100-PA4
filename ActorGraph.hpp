@@ -19,13 +19,13 @@
 using namespace std;
 
 /* Actor graph is a relationship between actors and the movies they acted in
- * represented in a graph data structure
+ * represented with a graph data structure
  */
 class ActorGraph {
 protected:
   
 	vector<ActorNode *> actors; // BSA to store actor names
-	vector<ActorEdge *> movies; // BSA to store movie and year
+	vector<ActorEdge *> edges; // BSA to store movie and year
 
 public:
 
@@ -45,19 +45,19 @@ public:
 	/**
 	 * Helper method to binary search for given edge in movie list 
 	 */
-	unsigned int bSearchMovie(ActorEdge * item);
+	unsigned int bSearchEdge(ActorEdge * item);
 
-	/** Return the pointer to the actor */
+	/** Return the pointer to the actor if the given actor is found*/
 	ActorNode * findActor(ActorNode * item);
 		
-	/** Insert item into sorted position */
+	/** Insert item into sorted position based on binary search*/
 	bool insertActor(ActorNode * item);
 
-	/** Return the pointer to the edge*/
-	ActorEdge * findMovie(ActorEdge * item);
+	/** Return the pointer to the edge if the given item is found*/
+	ActorEdge * findEdge(ActorEdge * item);
 		
-	/** Insert item into sorted position */
-	bool insertMovie(ActorEdge * item);
+	/** Insert item into sorted position based on binary search*/
+	bool insertEdge(ActorEdge * item);
 
 	/** You can modify this method definition as you wish
      *

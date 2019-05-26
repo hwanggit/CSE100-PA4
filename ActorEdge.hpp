@@ -11,7 +11,7 @@
 #define ACTOREDGE_HPP
 
 #include "ActorNode.hpp"
-#include <string.h>
+#include <string>
 
 class ActorNode; // Define ActorNode
 
@@ -23,7 +23,7 @@ using namespace std;
 class ActorEdge {
 public:
 	// Name of actor
-    char * movieName;
+    std::string movieName;
 
 	// Name the year
 	int year;
@@ -33,18 +33,29 @@ public:
 	ActorNode * actor2;	
 	
 	// Constructor for ActorEdge, initializes member variables
-    ActorEdge(const char * name, int year, ActorNode * node1, ActorNode *node2);
+    ActorEdge(std::string name, int year, ActorNode * node1, ActorNode * node2);
 
 	// Check if two edges are equal
 	bool operator==(ActorEdge * const & other) const {
 		// Compare movie names
-		int compareName = strcmp(this->movieName, other->movieName);
+		int compareName = (this->movieName).compare(other->movieName);
 		
 		// Compare movie years
 		int compareYear = ((this->year) == (other->year)) ? 1 : 0;
 		
+		// compare actor1 and actor2
+		bool parallel = (this->actor1 == other->actor1) && 
+							(this->actor2 == other->actor2);
+
+		// Compare crossed
+		bool crossed = (this->actor1 == other->actor2) &&
+							(this->actor2 == other->actor1);
+
+		// OR of parallel and crossed
+		bool both = parallel || crossed;
+
 		// Return true if equal, else false
-		if ((compareName == 0) && compareYear)
+		if (!compareName && compareYear && both)
 			return true;
 
 		return false;
