@@ -1,4 +1,4 @@
-/* Description: This program defines each actor in a graph of actors
+/* Description: This program defines each actor in a tree of actors
  * and the movies they collectively acted in.
  *
  * Name: Luhao Wang
@@ -10,7 +10,8 @@
 #ifndef ACTORNODE_HPP
 #define ACTORNODE_HPP
 
-#define <queue>
+#include <queue>
+#include <utility>
 
 using namespace std;
 
@@ -24,15 +25,21 @@ class ActorNode {
 public:
 	// Name of actor
     char * name;
+	
+	// Determine if visited
+	bool isVisited;
 
 	// List of edges and corresponding actors
 	priority_queue<branch, vector<branch>, compareEdge> movies; 
 	
 	// Constructor for ActorNode, initializes member variables
-    ActorNode(char * nameInput);
+    ActorNode(const char * nameInput);
 
 	// Add edge and neighbor to movies list
 	void addNeighbor(ActorEdge * edgeIn, ActorNode * neighbor);
+
+	// Compare nodes
+	bool equals(ActorNode * p1, ActorNode * p2);
 };
 
 /** The comparator used in sorting points based on edge weight*/

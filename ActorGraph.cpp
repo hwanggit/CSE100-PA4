@@ -1,10 +1,11 @@
 /*
  * ActorGraph.cpp
- * Author: <YOUR NAME HERE>
- * Date:   <DATE HERE>
+ * Author: Luhao Wang, luw055
+ * Date:   05/25/19
  *
- * This file is meant to exist as a container for starter code that you can use to read the input file format
- * defined in imdb_2019.tsv. Feel free to modify any/all aspects as you wish.
+ * This file is meant to exist as a container for starter code that you can use 
+ * to read the input file format defined in imdb_2019.tsv. Feel free to modify 
+ * any/all aspects as you wish.
  */
  
 #include <fstream>
@@ -26,12 +27,12 @@ ActorGraph::ActorGraph(void) {}
  * Load the graph from a tab-delimited file of actor->movie relationships.
  *
  * in_filename - input filename
- * use_weighted_edges - if true, compute edge weights as 1 + (2019 - movie_year),
+ * use_weighted_edges - if true, compute edge weights as 1 + (2019 - movie_year)
  *                      otherwise all edge weights will be 1
  *
  * return true if file was loaded sucessfully, false otherwise
  */
-bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) {
+bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 
     // Initialize the file stream
     ifstream infile(in_filename);
@@ -58,7 +59,8 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) 
         while (ss) {
             string next;
       
-            // get the next string before hitting a tab character and put it in 'next'
+            // get the next string before hitting a tab character and 
+			// put it in 'next'
             if (!getline( ss, next, '\t' )) break;
 
             record.push_back( next );

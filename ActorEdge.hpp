@@ -1,44 +1,50 @@
-/* Description: This program defines each actor in a graph of actors
- * and the movies they collectively acted in.
+/* Description: This program defines each edge in the actor-movie graph, 
+ * actors are connected based on the common movies they acted in. 
  *
  * Name: Luhao Wang
  * Email: luw055@ucsd.edu
- * Date: May 24, 2019
+ * Date: May 25, 2019
  * Sources: Piazza
  */
 
-#ifndef ACTORNODE_HPP
-#define ACTORNODE_HPP
+#ifndef ACTOREDGE_HPP
+#define ACTOREDGE_HPP
 
-#define <queue>
+#include <string.h>
 
 using namespace std;
 
-typedef std::pair <ActorEdge *, ActorNode *> branch; // Define a edge-node pair
-
-/** A class, instances of which are nodes in an ACTORTree. 
- * Member variables store the actor name, distance and previous
- * pointer
+/** A class, instances of which are edges in an Actorgraph. 
+ * Member variables store the movie name, year, and connected actors
  */
-class ActorNode {
+class ActorEdge {
 public:
 	// Name of actor
-    char * name;
+    char * movieName;
 
-	// List of edges and corresponding actors
-	priority_queue<branch, vector<branch>, compareEdge> movies; 
+	// Name the year
+	int year;
 	
-	// Constructor for ActorNode, initializes member variables
-    ActorNode(char * nameInput);
+	// Pointers to two connected actors
+	ActorNode * actor1;
+	ActorNode * actor2;	
+	
+	// Constructor for ActorEdge, initializes member variables
+    ActorEdge(const char * name, int year, ActorNode * node1, ActorNode *node2);
 
-	// Add edge and neighbor to movies list
-	void addNeighbor(ActorEdge * edgeIn, ActorNode * neighbor);
-};
+	// Check if two edges are equal
+	bool operator==(ActorEdge * const & other) const {
+		// Compare movie names
+		int compareName = strcmp(this->movieName, other->movieName);
+		
+		// Compare movie years
+		int compareYear = ((this->year) == (other->year)) ? 1 : 0;
+		
+		// Return true if equal, else false
+		if (compareName && compareYear)
+			return true;
 
-/** The comparator used in sorting points based on edge weight*/
-struct compareEdge {
-    bool operator() (const branch & p1, const branch & p2) {
-		return p1.first->year < p2.first->year;
+		return false;
 	}
-}
-#endif // ACTORNODE_HPP
+};
+#endif // ACTOREDGE_HPP
