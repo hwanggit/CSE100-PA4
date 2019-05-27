@@ -28,8 +28,11 @@ pathfinder: ActorGraph.o
 # Note: you do not have to include a *.cpp file if it aleady has a paired *.hpp
 # file that is already included with class/method headers
 
-ActorGraph.o: ActorNode.hpp ActorEdge.hpp ActorGraph.hpp
+ActorGraph.o: ActorNode.o ActorEdge.o ActorGraph.hpp ActorGraph.cpp
 
+ActorEdge.o: ActorEdge.hpp ActorEdge.cpp
+
+ActorNode.o: ActorNode.hpp ActorNode.cpp
 
 clean:
 	rm -f pathfinder *.o core*

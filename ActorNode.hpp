@@ -13,27 +13,28 @@
 #include <queue>
 #include <utility>
 #include <string>
-#include "ActorEdge.hpp"
 
 class ActorEdge; // Define ActorEdge class
 
 using namespace std;
-
-typedef std::pair <ActorEdge *, ActorNode *> branch; // Define a edge-node pair
-
-/** The comparator used in sorting points based on edge weight*/
-struct compareEdge {
-	bool operator() (const branch & p1, const branch & p2) {
-		return p1.first->year < p2.first->year;
-	}
-};
-
+	
 /** A class, instances of which are nodes in an ActorGraph 
  * Member variables store the actor name, distance and previous
  * pointer
  */
 class ActorNode {
+	
+	typedef std::pair <ActorEdge *, ActorNode *> branch; // Define a edge-node 
+	
+	/** The comparator used in sorting points based on edge weight*/
+	struct compareEdge {
+		bool operator() (const branch & p1, const branch & p2) {
+			return p1.first < p2.first;
+		}
+	};
+
 public:
+
 	// Name of actor
     std::string name;
 	

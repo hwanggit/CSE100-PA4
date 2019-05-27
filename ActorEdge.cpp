@@ -7,6 +7,7 @@
  * Sources: Piazza
  */
 
+#include "ActorNode.hpp"
 #include "ActorEdge.hpp"
 
 using namespace std;

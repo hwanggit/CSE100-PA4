@@ -10,7 +10,6 @@
 #ifndef ACTOREDGE_HPP
 #define ACTOREDGE_HPP
 
-#include "ActorNode.hpp"
 #include <string>
 
 class ActorNode; // Define ActorNode
@@ -59,6 +58,12 @@ public:
 			return true;
 
 		return false;
+	}
+
+	// Change < operator
+	bool operator<(ActorEdge * const & other) const {
+		// Compare years
+		return (this->year) < (other->year);
 	}
 };
 #endif // ACTOREDGE_HPP

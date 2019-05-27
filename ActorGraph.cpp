@@ -12,6 +12,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "ActorNode.cpp"
+#include "ActorEdge.cpp"
 #include "ActorGraph.hpp"
 
 using namespace std;
@@ -229,8 +231,11 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 				ActorEdge * edge = new ActorEdge(movie_title, movie_year, 
 													currNode, actors[i]);
 				
-				// Add edge to list
-				insertEdge(edge);
+				// Add edge to list, if duplicate, continue
+				if(!insertEdge(edge)) {
+					delete(edge);
+					continue;
+				}
 
 				// For each node, add edge to their lists
 				actors[i]->addNeighbor(edge, currNode);

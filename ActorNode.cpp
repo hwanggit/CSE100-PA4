@@ -7,11 +7,10 @@
  * Sources: Piazza
  */
 
+#include "ActorEdge.hpp"
 #include "ActorNode.hpp"
 
 using namespace std;
-
-typedef std::pair <ActorEdge *, ActorNode *> branch; // Define a edge-node pair
 
 // Constructor for ActorNode, initializes member variables
 ActorNode::ActorNode(std::string nameInput) : name(nameInput), 
