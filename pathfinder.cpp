@@ -23,29 +23,52 @@ using namespace std;
 int main(int argc, char** argv)
 {
   	// Check valid arguments
-	if(argc < 2) {
-		cout << "This program needs exactly one argument!" << endl;
+	if(argc < 5) {
+		cout << argv[0] << " called with incorrect arguments." << endl;
+		cout << "Usage: " << argv[0] << " movie_cast_tsv_file u/w " 
+			 << "pairs_tsv_file output_paths_tsv_file" << endl;
         exit(-1);
     }
-	
-	// Extract input file
-	char * inputFile = argv[1];
 
+	// Extract input file
+	char * inputFile (argv[1]);
+	 
+	// Determine if weighted or unweighted
+	string weight (argv[2]);
+	
+	// If weight is not u/w, print error
+	if (weight.compare("w") != 0 && weight.compare("u") != 0) {
+		cout << "wrong parameter '" << weight << "', must be u or w" << endl;
+		exit(-1);
+	}
+	
 	// Make new actorGraph
 	ActorGraph * imdb = new ActorGraph();
 
 	cout << "Reading " << inputFile << " ..." << endl;
-
-	// Read file and initialize actorGraph
-	imdb->loadFromFile(inputFile, 0);	
 	
+	// If weighted, load with 1, else 0
+	if (weight.compare("w") == 0) {
+		// Read file and initialize actorGraph
+		imdb->loadFromFile(inputFile, 1);	
+	}
+	else {
+		imdb->loadFromFile(inputFile, 0);	
+	}
+
 	cout << "done" << endl;
 	
-	for (unsigned int i=0; i<(imdb->edges).size(); i++) {
-		cout << ((imdb->edges)[i])->actor1->name << "-> ";
-		cout << ((imdb->edges)[i])->movieName << "-> ";
-		cout << ((imdb->edges)[i])->actor2->name << endl;
-	}
+	// Get test pairs file
+	string testPairs (argv[3]);
+	
+	// Get outputfile
+	string outputFile (argv[4]);
+	
+	// Open output file
+	ofstream outFile (outputFile);
+
+	// Close streams
+	outFile.close();
 
 	// Deallocate imdb
 	delete imdb;

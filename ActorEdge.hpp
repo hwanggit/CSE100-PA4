@@ -33,14 +33,16 @@ public:
 	
 	// Constructor for ActorEdge, initializes member variables
     ActorEdge(std::string name, int year, ActorNode * node1, ActorNode * node2);
-
-	// Compare the movies by name
-	int checkEqual(ActorEdge * other);
-
-	// Change < operator to sort by year
-	bool operator<(ActorEdge * const & other) const {
-		// Compare years
-		return (this->year) < (other->year);
-	}
 };
 #endif // ACTOREDGE_HPP
+
+/* EXTRA DO NOT UNCOMMENT */
+
+// Compare the movies by name
+//int checkEqual(ActorEdge * other);
+
+// Change < operator to sort by year
+/*	bool operator<(ActorEdge * const & other) const {
+	// Compare years
+	return (this->year) < (other->year);
+}*/

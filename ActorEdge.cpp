@@ -20,8 +20,10 @@ ActorEdge::ActorEdge(std::string name, int year, ActorNode * node1,
 	actor2 = node2;
 }
 
+/* BELOW IS EXTRA DO NOT UNCOMMENT */
+
 // Check if two edges are equal
-int ActorEdge::checkEqual(ActorEdge * other) {
+/*int ActorEdge::checkEqual(ActorEdge * other) {
 	// Compare movie names
 	int compareName = (this->movieName).compare(other->movieName);
 	
@@ -62,4 +64,4 @@ int ActorEdge::checkEqual(ActorEdge * other) {
 	}
 
 	return returnVal;
-}
+}*/

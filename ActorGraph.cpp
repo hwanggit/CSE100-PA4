@@ -54,55 +54,6 @@ unsigned int ActorGraph::bSearchActor(ActorNode * item) {
 	// Return where the element should be if not found
 	return lowInd;
 }
-
-/**
-* Helper method to binary search for given edge in movie list 
-*/
-unsigned int ActorGraph::bSearchEdge(ActorEdge * item) {
-	// Get low and high of vector
-	int lowInd = 0;
-	int highInd = edges.size()-1;
-	int middle = 0;
-
-	// Get mid value and narrow down array by half
-	while (lowInd <= highInd) {
-		// Halve the array each time and search subarray
-		middle = ((highInd - lowInd)/2)+lowInd;
-		
-		// Check if equal
-		int compare = item->checkEqual(edges[middle]);
-
-		// Return index if found
-		if (compare < 0) {
-			highInd = middle - 1;
-		}
-		else if (compare > 0) {
-			lowInd = middle + 1;
-		}
-		else {
-			return middle;
-		}
-	}
-	// Return where the element should be if not found
-	return lowInd;
-} 
-
-/** Return the pointer to the actor */
-ActorNode * ActorGraph::findActor(ActorNode * item) {
-	// Search correct index for item
-	unsigned int index = bSearchActor(item);
-	
-	// If index out of bounds, return false
-	if (index < 0 || index >= actors.size()) {
-		return nullptr;
-	}
-	
-	// If found, return 
-	if (!(actors[index]->checkEqual(item))) {
-		return actors[index];
-	}
-	return nullptr;
-}
 	
 /** Insert item into sorted position */
 bool ActorGraph::insertActor(ActorNode * item) {
@@ -133,56 +84,7 @@ bool ActorGraph::insertActor(ActorNode * item) {
 	return true;
 }
 
-/** Return the pointer to the edge*/
-ActorEdge * ActorGraph::findEdge(ActorEdge * item) {
-	// Search correct index for item
-	unsigned int index = bSearchEdge(item);
-
-	// If index out of bounds, return false
-	if (index < 0 || index >= edges.size()) {
-		return nullptr;
-	}
-
-	// If not found, return 
-	if (!(edges[index]->checkEqual(item))) {
-		return edges[index];
-	}
-	return nullptr;
-}
-	
-/** Insert item into sorted position */
-bool ActorGraph::insertEdge(ActorEdge * item) {
-	// If array is empty, simply push to array
-	if (!edges.size()) {
-		edges.push_back(item);
-		return true;
-	}
-	// Search correct index for item
-	unsigned int index = bSearchEdge(item);
-
-	// Create a new iterator for v
-	vector<ActorEdge *>::iterator itr = edges.begin();
-		
-	// If found, return false 
-	if (index >= 0 && index < edges.size()) {
-		if (!(edges[index]->checkEqual(item))) {
-			return false;
-		}
-	}
-
-	// Traverse to correct index
-	advance(itr, index);
-	
-	// Insert node
-	edges.insert(itr, item);
-	
-	// return true
-	return true;
-}
-
-/** You can modify this method definition as you wish
- *
- * Load the graph from a tab-delimited file of actor->movie relationships.
+/* Load the graph from a tab-delimited file of actor->movie relationships.
  *
  * in_filename - input filename
  * use_weighted_edges - if true, compute edge weights as 1 + (2019 - movie_year)
@@ -238,7 +140,7 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
         string movie_title(record[1]);
         int movie_year = stoi(record[2]);
 		string movie_and_year(record[1] + " " + record[2]);
-		
+	
 		// If different actor, create new node and insert
 		if (prevActor.compare(actor_name) != 0) {
 			// Create new actor
@@ -247,34 +149,9 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 			// Insert actor into list
 			insertActor(currNode);
 		}
-
-		// Insert movie to actor
-		currNode->insertMovie(movie_and_year);
-		
-		// Search all previous actor's movie list for matches and make edges
-		for (unsigned int i=0; i<actors.size(); i++) {
-			// If same actor, continue
-			if (!(actors[i]->checkEqual(currNode))) {
-				continue;
-			}
-			
-			// If found, create new edge
-			if (actors[i]->findMovie(movie_and_year)) {
-				// Otherwise create new edge and link dependencies
-				ActorEdge * edge = new ActorEdge(movie_title, movie_year, 
-													currNode, actors[i]);
-				
-				// Add edge to list, if duplicate, continue
-				if(!insertEdge(edge)) {
-					delete(edge);
-					continue;
-				}
-
-				// For each node, add edge to their lists
-				actors[i]->addNeighbor(edge, currNode);
-				currNode->addNeighbor(edge, actors[i]);
-			}
-		}
+	
+		// Add entry to movie_graph
+		movie_graph[movie_and_year].push_back(currNode);
 
 		// Set previous actor name
 		prevActor = actor_name;
@@ -285,6 +162,27 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
         return false;
     }
     infile.close();
+	
+	// Create nodes for all adjacent actors
+	for( const auto& n : movie_graph ) {
+		// Get list of actors for current movie
+		vector <ActorNode *> currList = n.second;
+		
+		// Link each pair of actors using an edge
+		for (unsigned int i=0; i<currList.size(); i++) {
+			for (unsigned int j=i+1; j<currList.size(); j++) {
+				// Create new edge and push to list of edges 
+				ActorEdge * currEdge = new ActorEdge(n.first, 0, currList[i], 
+														currList[j]);
+				// Push to list of accumulating edges
+				edges.push_back(currEdge);
+
+				// Add edge as neighbor of each linked node
+				currList[i]->addNeighbor(currEdge, currList[j]);
+				currList[j]->addNeighbor(currEdge, currList[i]);
+			}
+		}
+	}
 
     return true;
 }
@@ -301,3 +199,101 @@ ActorGraph::~ActorGraph() {
 		delete (edges[j]);
 	}
 }
+
+/* BELOW IS EXTRA DO NOT UNCOMMENT */
+
+/**
+* Helper method to binary search for given edge in movie list 
+*/
+/*unsigned int ActorGraph::bSearchEdge(ActorEdge * item) {
+	// Get low and high of vector
+	int lowInd = 0;
+	int highInd = edges.size()-1;
+	int middle = 0;
+
+	// Get mid value and narrow down array by half
+	while (lowInd <= highInd) {
+		// Halve the array each time and search subarray
+		middle = ((highInd - lowInd)/2)+lowInd;
+		
+		// Check if equal
+		int compare = item->checkEqual(edges[middle]);
+
+		// Return index if found
+		if (compare < 0) {
+			highInd = middle - 1;
+		}
+		else if (compare > 0) {
+			lowInd = middle + 1;
+		}
+		else {
+			return middle;
+		}
+	}
+	// Return where the element should be if not found
+	return lowInd;
+} */
+
+/** Return the pointer to the actor */
+/*ActorNode * ActorGraph::findActor(ActorNode * item) {
+	// Search correct index for item
+	unsigned int index = bSearchActor(item);
+	
+	// If index out of bounds, return false
+	if (index < 0 || index >= actors.size()) {
+		return nullptr;
+	}
+	
+	// If found, return 
+	if (!(actors[index]->checkEqual(item))) {
+		return actors[index];
+	}
+	return nullptr;
+}*/
+
+/** Return the pointer to the edge*/
+/*ActorEdge * ActorGraph::findEdge(ActorEdge * item) {
+	// Search correct index for item
+	unsigned int index = bSearchEdge(item);
+
+	// If index out of bounds, return false
+	if (index < 0 || index >= edges.size()) {
+		return nullptr;
+	}
+
+	// If not found, return 
+	if (!(edges[index]->checkEqual(item))) {
+		return edges[index];
+	}
+	return nullptr;
+}*/
+	
+/** Insert item into sorted position */
+/*bool ActorGraph::insertEdge(ActorEdge * item) {
+	// If array is empty, simply push to array
+	if (!edges.size()) {
+		edges.push_back(item);
+		return true;
+	}
+	// Search correct index for item
+	unsigned int index = bSearchEdge(item);
+
+	// Create a new iterator for v
+	vector<ActorEdge *>::iterator itr = edges.begin();
+		
+	// If found, return false 
+	if (index >= 0 && index < edges.size()) {
+		if (!(edges[index]->checkEqual(item))) {
+			return false;
+		}
+	}
+
+	// Traverse to correct index
+	advance(itr, index);
+	
+	// Insert node
+	edges.insert(itr, item);
+	
+	// return true
+	return true;
+}*/
