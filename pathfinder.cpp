@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 	cout << "done" << endl;
 	
 	// Get test pairs file
-	string testPairs (argv[3]);
+	char * testPairs (argv[3]);
 	
 	// Get outputfile
 	string outputFile (argv[4]);
@@ -67,9 +67,9 @@ int main(int argc, char** argv)
 	// Open output file
 	ofstream outFile (outputFile);
 
-	// Close streams
-	outFile.close();
-
+	// load pairs and print shortest paths
+	imdb->loadPairs(testPairs, outFile);
+	
 	// Deallocate imdb
 	delete imdb;
 }

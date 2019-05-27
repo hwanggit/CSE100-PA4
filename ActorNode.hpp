@@ -24,6 +24,8 @@ using namespace std;
  */
 class ActorNode {
 	
+	typedef std::pair <ActorEdge *, ActorNode *> branch; // Define an edge-node 
+	
 public:
 
 	// Name of actor
@@ -32,9 +34,11 @@ public:
 	// Determine if visited
 	bool isVisited;
 
-	// Define adjacent edges and nodes, adjEdges[i] connects to adjNodes[i]
-	vector<ActorEdge *> adjEdges;	
-	vector<ActorNode *> adjNodes;
+	// Pointer to previous edge-node, used in BFS
+	branch * prev;
+
+	// Define adjacent edges and nodes, each entry is an edge-node pair
+	vector<branch *> adjEdges;
 
 	// Constructor for ActorNode, initializes member variables
     ActorNode(std::string nameInput);
@@ -52,7 +56,6 @@ public:
 // List of adjacent edge-actor pairs sorted by year
 //priority_queue<ActorEdge *, vector<ActorEdge *>, compareEdge> adjEdges; 
 	
-//typedef std::pair <ActorEdge *, ActorNode *> branch; // Define a edge-node 
 
 /** The comparator used in sorting points based on edge weight*/
 /*	struct compareEdge {

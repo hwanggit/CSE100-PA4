@@ -23,10 +23,14 @@ using namespace std;
  * represented with a graph data structure
  */
 class ActorGraph {
+	
+	typedef std::pair <ActorEdge *, ActorNode *> branch; // Define an edge-node 
+ 
  protected:
 	
-	// To store cast for each movie
+	// To store cast for each movie, and for each year
 	std::unordered_map<std::string, vector<ActorNode *>> movie_graph;
+	std::unordered_map<std::string, int> year_graph;
 
  public:
    
@@ -48,7 +52,10 @@ class ActorGraph {
 	
 	/** Insert item into sorted position based on binary search*/
 	bool insertActor(ActorNode * item);
-	
+
+	/** Return the pointer to the actor if the given actor is found*/
+	ActorNode * findActor(ActorNode * item);
+
     /* Load the graph from a tab-delimited file of actor->movie relationships.
      *
      * in_filename - input filename
@@ -59,6 +66,16 @@ class ActorGraph {
      * return true if file was loaded sucessfully, false otherwise
      */
     bool loadFromFile(const char* in_filename, bool use_weighted_edges);  
+	
+	// helper method to build graph using unordered map
+	void buildMap();
+
+	// Method to read pairs from test pairs file and print out shortest path
+	bool loadPairs(const char * in_file, ofstream & out);
+
+	// Helper method to BFS traverse graph and find closest path
+	void findShortestPath(vector<std::string> & start,vector<std::string> & end,
+							ofstream & out);
 };
 #endif // ACTORGRAPH_HPP
 
@@ -67,10 +84,6 @@ class ActorGraph {
 /* Helper method to binary search for given edge in movie list 
 */
 //	unsigned int bSearchEdge(ActorEdge * item);
-
-/** Return the pointer to the actor if the given actor is found*/
-//	ActorNode * findActor(ActorNode * item);
-
 /** Return the pointer to the edge if the given item is found*/
 //	ActorEdge * findEdge(ActorEdge * item);
 	

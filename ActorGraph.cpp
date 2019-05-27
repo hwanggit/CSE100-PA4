@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <queue>
 #include "ActorNode.cpp"
 #include "ActorEdge.cpp"
 #include "ActorGraph.hpp"
@@ -53,6 +54,23 @@ unsigned int ActorGraph::bSearchActor(ActorNode * item) {
 	}
 	// Return where the element should be if not found
 	return lowInd;
+}
+
+/** Return the pointer to the actor */
+ActorNode * ActorGraph::findActor(ActorNode * item) {
+	// Search correct index for item
+	unsigned int index = bSearchActor(item);
+	
+	// If index out of bounds, return false
+	if (index < 0 || index >= actors.size()) {
+		return nullptr;
+	}
+	
+	// If found, return 
+	if (!(actors[index]->checkEqual(item))) {
+		return actors[index];
+	}
+	return nullptr;
 }
 	
 /** Insert item into sorted position */
@@ -138,9 +156,8 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 		// Get the name, movie, year
         string actor_name(record[0]);
         string movie_title(record[1]);
-        int movie_year = stoi(record[2]);
-		string movie_and_year(record[1] + " " + record[2]);
-	
+        int year = stoi(record[2]);
+
 		// If different actor, create new node and insert
 		if (prevActor.compare(actor_name) != 0) {
 			// Create new actor
@@ -151,7 +168,8 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 		}
 	
 		// Add entry to movie_graph
-		movie_graph[movie_and_year].push_back(currNode);
+		movie_graph[movie_title].push_back(currNode);
+		year_graph[movie_title] = year;
 
 		// Set previous actor name
 		prevActor = actor_name;
@@ -161,8 +179,19 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
         cerr << "Failed to read " << in_filename << "!\n";
         return false;
     }
-    infile.close();
-	
+
+    // Call helper method to build graph
+	buildMap();
+
+	// Close file and return
+	infile.close();
+	return true;
+}
+
+/* helper method to build tree from unordered map
+ * PRECONDITION: loadFromFile has been called to initialize map
+ */
+void ActorGraph::buildMap() {	
 	// Create nodes for all adjacent actors
 	for( const auto& n : movie_graph ) {
 		// Get list of actors for current movie
@@ -172,8 +201,10 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 		for (unsigned int i=0; i<currList.size(); i++) {
 			for (unsigned int j=i+1; j<currList.size(); j++) {
 				// Create new edge and push to list of edges 
-				ActorEdge * currEdge = new ActorEdge(n.first, 0, currList[i], 
-														currList[j]);
+				ActorEdge * currEdge = new ActorEdge(n.first, 
+														year_graph[n.first], 
+															currList[i], 
+																currList[j]);
 				// Push to list of accumulating edges
 				edges.push_back(currEdge);
 
@@ -183,8 +214,196 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 			}
 		}
 	}
+}
 
-    return true;
+// Method to read pairs from test pairs file and print out shortest path
+bool ActorGraph::loadPairs(const char * in_file, ofstream & out) {
+	 // Initialize the file stream
+    ifstream infile(in_file);
+
+    bool have_header = false;
+	
+	// Define start and end vectors
+	vector <std::string> start;
+	vector <std::string> end;
+
+    // keep reading lines until the end of file is reached
+    while (infile) {
+        string s;
+    
+        // get the next line
+        if (!getline( infile, s )) break;
+
+        if (!have_header) {
+
+            // skip the header
+            have_header = true;
+            continue;
+        }
+
+        istringstream ss( s );
+        vector <string> record;
+
+        while (ss) {
+            string next;
+      
+            // get the next string before hitting a tab character and 
+			// put it in 'next'
+            if (!getline( ss, next, '\t' )) break;
+
+            record.push_back( next );
+        }
+    
+        if (record.size() != 2) {
+            // we should have exactly 2 columns
+            continue;
+        }
+		
+		// Get the start and end search
+        string start_q(record[0]);
+        string end_q(record[1]);
+		
+		// Add to vectors
+		start.push_back(start_q);
+		end.push_back(end_q);
+    }
+	if (!infile.eof()) {
+        cerr << "Failed to read " << in_file << "!\n";
+        return false;
+    }
+
+	// Print header to outputfile
+	out << "(actor)--[movie#@year]-->(actor)--...\n";
+
+    // Call helper method to build graph
+	findShortestPath(start, end, out);
+	
+	// Close file and return
+	infile.close();
+	return true;
+}
+
+// Helper method to BFS traverse graph and find closest path
+void ActorGraph::findShortestPath(vector<std::string> & start, 
+									vector<std::string> & end, ofstream & out) {
+	// For each query, do a BFS search
+	for (unsigned int i=0; i<start.size(); i++) {
+		// Print computing statements
+		cout << "computing path for (" << start[i] << ") -> (" << end[i];
+		cout << ")" << endl;
+		
+		// Initialize queue for BFS
+		queue <branch *> toExplore;
+
+		// Create starting nodes for start and end 
+		ActorNode * start_q = new ActorNode(start[i]);
+		ActorNode * end_q = new ActorNode(end[i]);
+
+		// Find starting point
+		ActorNode * currBegin = findActor(start_q);
+		
+		// If not found, print failed
+		if (currBegin == nullptr) {
+			out << endl;
+			cout << "Failed to locate node '" << end[i] << "'" << endl;
+			delete(start_q);
+			delete(end_q);
+			continue;
+		}
+		
+		// To check if found
+		bool checkFound = false;
+		branch * lastBranch;
+
+		// create new branch for start and push start to queue
+		branch newPair = std::make_pair(nullptr, currBegin);
+		branch * newStart = &newPair;
+		currBegin->isVisited = true;
+		toExplore.push(newStart);
+		
+		// While not empty, keep exploring
+		while (!toExplore.empty()) {
+			// Get first of queue
+			branch * next = toExplore.front();
+			toExplore.pop();
+			
+			// Add neighbors to queue
+			for (unsigned int k=0; k<((next->second->adjEdges).size()); k++) {
+				branch * currNeighbor = next->second->adjEdges[k];
+				
+				// If not visited, set to visited, and push to queue
+				if (currNeighbor->second->isVisited == false) {
+					currNeighbor->second->isVisited = true;
+					currNeighbor->second->prev = next;
+					toExplore.push(currNeighbor);
+
+					// If destination is found, return
+					if (end_q->checkEqual(currNeighbor->second) == 0) {
+						// Empty queue
+						while (!toExplore.empty()) {
+							toExplore.pop();
+						}
+						// Set found flag to true
+						checkFound = true;
+						lastBranch = currNeighbor;
+						break;
+					}
+				}
+			}
+		}
+		
+		// If not found, print failed
+		if (!checkFound) {
+			out << endl;
+			cout << "Failed to locate node '" << end[i] << "'" << endl;	
+		}
+		else {
+			// Print path if found
+			vector<branch *> path;
+			branch * currBranch = lastBranch;
+			path.push_back(currBranch);
+			
+			// While the predecessor is not null, push
+			while (currBranch->second->prev != nullptr) {
+				path.push_back(currBranch->second->prev);
+				currBranch = currBranch->second->prev;
+			}
+
+			// write path to output
+			for (unsigned int h=path.size()-1; h>0; h--) {
+				// If edge is not null, print edge
+				if (path[h]->first != nullptr) {
+					out << "--[";
+					out << (path[h]->first)->movieName << "#@";
+					out << (path[h]->first)->year << "]-->";
+				}
+				
+				// Print node
+				out << "(" << (path[h]->second)->name << ")";
+			}
+			
+			// Print last node
+			out << "--[";
+			out << (path[0]->first)->movieName << "#@";
+			out << (path[0]->first)->year << "]-->";
+			
+			// Print node
+			out << "(" << (path[0]->second)->name << ")" << endl;
+		}
+		
+		// Set all nodes to not visited
+		for (unsigned int j=0; j<actors.size(); j++) {
+			actors[j]->isVisited = false;
+			actors[j]->prev = nullptr;
+		}
+
+		// Delete initial pointers
+		delete(start_q);
+		delete(end_q);
+	}
+
+	// Close file stream
+	out.close();
 }
 
 /* Desctructor for actorGraph*/
@@ -233,23 +452,6 @@ ActorGraph::~ActorGraph() {
 	// Return where the element should be if not found
 	return lowInd;
 } */
-
-/** Return the pointer to the actor */
-/*ActorNode * ActorGraph::findActor(ActorNode * item) {
-	// Search correct index for item
-	unsigned int index = bSearchActor(item);
-	
-	// If index out of bounds, return false
-	if (index < 0 || index >= actors.size()) {
-		return nullptr;
-	}
-	
-	// If found, return 
-	if (!(actors[index]->checkEqual(item))) {
-		return actors[index];
-	}
-	return nullptr;
-}*/
 
 /** Return the pointer to the edge*/
 /*ActorEdge * ActorGraph::findEdge(ActorEdge * item) {

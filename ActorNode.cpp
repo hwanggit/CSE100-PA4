@@ -13,15 +13,16 @@
 using namespace std;
 
 // Constructor for ActorNode, initializes member variables
-ActorNode::ActorNode(std::string nameInput) : name(nameInput),isVisited(false){}
+ActorNode::ActorNode(std::string nameInput) : name(nameInput),isVisited(false){
+	prev = nullptr;
+}
 
 // Add edge and neighbor to movies list
 void ActorNode::addNeighbor(ActorEdge * edgeIn, ActorNode * nodeIn) {
 	// Add to list
-	adjEdges.push_back(edgeIn);
-	adjNodes.push_back(nodeIn);
-
-	// DO NOT UNCOMMENT: branch newBranch = std::make_pair(edgeIn, neighbor);
+	branch newBranch = std::make_pair(edgeIn, nodeIn);
+	branch * branchPtr = &newBranch;
+	adjEdges.push_back(branchPtr);
 }
 
 // Check if two nodes are equal
