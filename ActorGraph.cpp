@@ -28,16 +28,26 @@ ActorGraph::ActorGraph(void) {}
 */
 unsigned int ActorGraph::bSearchActor(ActorNode * item) {
 	// Get low and high of vector
-	unsigned int lowInd = 0;
-	unsigned int highInd = actors.size()-1;
-	unsigned int middle = 0;
+	int lowInd = 0;
+	int highInd = actors.size()-1;
+	int middle = 0;
 
 	// Get mid value and narrow down array by half
 	while (lowInd <= highInd) {
 		// Halve the array each time and search subarray
 		middle = ((highInd - lowInd)/2)+lowInd;
+	
+		// Check if equals
+		int compare = item->checkEqual(actors[middle]);
+
 		// Return index if found
-		if (item == actors[middle]) {
+		if (compare < 0) {
+			highInd = middle - 1;
+		}
+		else if (compare > 0) {
+			lowInd = middle + 1;
+		}
+		else {
 			return middle;
 		}
 	}
@@ -50,16 +60,26 @@ unsigned int ActorGraph::bSearchActor(ActorNode * item) {
 */
 unsigned int ActorGraph::bSearchEdge(ActorEdge * item) {
 	// Get low and high of vector
-	unsigned int lowInd = 0;
-	unsigned int highInd = edges.size()-1;
-	unsigned int middle = 0;
+	int lowInd = 0;
+	int highInd = edges.size()-1;
+	int middle = 0;
 
 	// Get mid value and narrow down array by half
 	while (lowInd <= highInd) {
 		// Halve the array each time and search subarray
 		middle = ((highInd - lowInd)/2)+lowInd;
+		
+		// Check if equal
+		int compare = item->checkEqual(edges[middle]);
+
 		// Return index if found
-		if (item == edges[middle]) {
+		if (compare < 0) {
+			highInd = middle - 1;
+		}
+		else if (compare > 0) {
+			lowInd = middle + 1;
+		}
+		else {
 			return middle;
 		}
 	}
@@ -71,9 +91,14 @@ unsigned int ActorGraph::bSearchEdge(ActorEdge * item) {
 ActorNode * ActorGraph::findActor(ActorNode * item) {
 	// Search correct index for item
 	unsigned int index = bSearchActor(item);
-		
-	// If not found, return 
-	if (actors[index] == item) {
+	
+	// If index out of bounds, return false
+	if (index < 0 || index >= actors.size()) {
+		return nullptr;
+	}
+	
+	// If found, return 
+	if (!(actors[index]->checkEqual(item))) {
 		return actors[index];
 	}
 	return nullptr;
@@ -91,12 +116,13 @@ bool ActorGraph::insertActor(ActorNode * item) {
 
 	// Create a new iterator for v
 	vector<ActorNode *>::iterator itr = actors.begin();
-		
-	// If already exists, return false
-	if (actors[index] == item) {
-		return false;
+	
+	// If found, return false 
+	if (index >= 0 && index < actors.size()) {
+		if (!(actors[index]->checkEqual(item))) {
+			return false;
+		}
 	}
-
 	// Traverse to correct index
 	advance(itr, index);
 	
@@ -111,9 +137,14 @@ bool ActorGraph::insertActor(ActorNode * item) {
 ActorEdge * ActorGraph::findEdge(ActorEdge * item) {
 	// Search correct index for item
 	unsigned int index = bSearchEdge(item);
-		
+
+	// If index out of bounds, return false
+	if (index < 0 || index >= edges.size()) {
+		return nullptr;
+	}
+
 	// If not found, return 
-	if (edges[index] == item) {
+	if (!(edges[index]->checkEqual(item))) {
 		return edges[index];
 	}
 	return nullptr;
@@ -132,9 +163,11 @@ bool ActorGraph::insertEdge(ActorEdge * item) {
 	// Create a new iterator for v
 	vector<ActorEdge *>::iterator itr = edges.begin();
 		
-	// If already exists, return false
-	if (edges[index] == item) {
-		return false;
+	// If found, return false 
+	if (index >= 0 && index < edges.size()) {
+		if (!(edges[index]->checkEqual(item))) {
+			return false;
+		}
 	}
 
 	// Traverse to correct index
@@ -204,27 +237,27 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
         string actor_name(record[0]);
         string movie_title(record[1]);
         int movie_year = stoi(record[2]);
-		string movie_and_year(record[1] + record[2]);
-
+		string movie_and_year(record[1] + " " + record[2]);
+		
 		// If different actor, create new node and insert
 		if (prevActor.compare(actor_name) != 0) {
 			// Create new actor
 			currNode = new ActorNode(actor_name);
-
+			
 			// Insert actor into list
 			insertActor(currNode);
 		}
 
 		// Insert movie to actor
 		currNode->insertMovie(movie_and_year);
-
+		
 		// Search all previous actor's movie list for matches and make edges
 		for (unsigned int i=0; i<actors.size(); i++) {
 			// If same actor, continue
-			if (actors[i] == currNode) {
+			if (!(actors[i]->checkEqual(currNode))) {
 				continue;
 			}
-
+			
 			// If found, create new edge
 			if (actors[i]->findMovie(movie_and_year)) {
 				// Otherwise create new edge and link dependencies

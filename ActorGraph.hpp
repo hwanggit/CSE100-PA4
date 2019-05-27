@@ -22,12 +22,12 @@ using namespace std;
  * represented with a graph data structure
  */
 class ActorGraph {
-protected:
-  
+//protected:
+ public:
+ 
 	vector<ActorNode *> actors; // BSA to store actor names
 	vector<ActorEdge *> edges; // BSA to store movie and year
 
-public:
 
     /**
      * Constuctor of the Actor graph
@@ -70,7 +70,6 @@ public:
      *
      * return true if file was loaded sucessfully, false otherwise
      */
-    bool loadFromFile(const char* in_filename, bool use_weighted_edges);
-  
+    bool loadFromFile(const char* in_filename, bool use_weighted_edges);  
 };
 #endif // ACTORGRAPH_HPP

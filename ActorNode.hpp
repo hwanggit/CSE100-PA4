@@ -49,7 +49,7 @@ public:
 
 	// Constructor for ActorNode, initializes member variables
     ActorNode(std::string nameInput);
-
+	
 	// Adds a branch to the adjEdges of node
 	void addNeighbor(ActorEdge * edgeIn, ActorNode * neighbor);
 
@@ -65,15 +65,6 @@ public:
 	bool insertMovie(std::string item);
 	
 	// Check if two nodes are equal
-	bool operator==(ActorNode * const & other) const {
-		// Compare movie names
-		int compareName = (this->name).compare(other->name);
-		
-		// Return true if equal, else false
-		if (compareName == 0)
-			return true;
-
-		return false;
-	}
+	int checkEqual(ActorNode * other);
 };
 #endif // ACTORNODE_HPP

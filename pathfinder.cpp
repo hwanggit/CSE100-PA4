@@ -34,9 +34,19 @@ int main(int argc, char** argv)
 	// Make new actorGraph
 	ActorGraph * imdb = new ActorGraph();
 
+	cout << "Reading " << inputFile << " ..." << endl;
+
 	// Read file and initialize actorGraph
 	imdb->loadFromFile(inputFile, 0);	
 	
+	cout << "done" << endl;
+	
+	for (unsigned int i=0; i<(imdb->edges).size(); i++) {
+		cout << ((imdb->edges)[i])->actor1->name << "-> ";
+		cout << ((imdb->edges)[i])->movieName << "-> ";
+		cout << ((imdb->edges)[i])->actor2->name << endl;
+	}
+
 	// Deallocate imdb
 	delete imdb;
 }

@@ -19,3 +19,47 @@ ActorEdge::ActorEdge(std::string name, int year, ActorNode * node1,
 	actor1 = node1;
 	actor2 = node2;
 }
+
+// Check if two edges are equal
+int ActorEdge::checkEqual(ActorEdge * other) {
+	// Compare movie names
+	int compareName = (this->movieName).compare(other->movieName);
+	
+	// Compare movie years
+	int compareYear = 0;
+	if ((this->year) > (other->year)) {
+		compareYear = 1;
+	}
+	else if ((this->year) < (other->year)) {
+		compareYear = -1;
+	}
+	else {
+		compareYear = 0;
+	}
+	
+	// Check if actors are the same
+	int compareAct1 = actor1->checkEqual(other->actor1);
+	int compareAct2 = actor2->checkEqual(other->actor2);
+	
+	// If crossed, change both to 0
+	if (actor1->checkEqual(other->actor2) == 0 && 
+			actor2->checkEqual(other->actor1) == 0) {
+		compareAct1 = 0;
+		compareAct2 = 0;
+	}
+
+	// Get the sum
+	int returnVal;
+	int sum = compareName + compareYear + compareAct1 + compareAct2;
+	if (sum > 0) {
+		returnVal = 1;
+	}
+	else if (sum < 0) {
+		returnVal = -1;
+	}
+	else {
+		returnVal = 0;
+	}
+
+	return returnVal;
+}

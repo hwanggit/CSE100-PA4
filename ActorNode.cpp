@@ -25,23 +25,37 @@ void ActorNode::addNeighbor(ActorEdge * edgeIn, ActorNode * neighbor) {
 	adjEdges.push(newBranch);
 }
 
+// Check if two nodes are equal
+int ActorNode::checkEqual(ActorNode * other) {
+	// compare movie names
+	int comparename = (this->name).compare(other->name);	
+	return comparename;
+}
+
 /**
 * Helper method to binary search for given movie in movie list 
 */
 unsigned int ActorNode::bSearchMovie(std::string item) {
 	// Get low and high of vector
-	unsigned int lowInd = 0;
-	unsigned int highInd = movieList.size()-1;
-	unsigned int middle = 0;
+	int lowInd = 0;
+	int highInd = movieList.size()-1;
+	int middle = 0;
 
 	// Get mid value and narrow down array by half
 	while (lowInd <= highInd) {
 		// Halve the array each time and search subarray
 		middle = ((highInd - lowInd)/2)+lowInd;
+		
+		// Store comparison
+		int compare = item.compare(movieList[middle]);
+
 		// Return index if found
-		if (item.compare(movieList[middle]) == 0) {
+		if (compare < 0)
+			highInd = middle - 1;
+		else if (compare > 0)
+			lowInd = middle + 1;
+		else
 			return middle;
-		}
 	}
 	// Return where the element should be if not found
 	return lowInd;
@@ -51,7 +65,12 @@ unsigned int ActorNode::bSearchMovie(std::string item) {
 bool ActorNode::findMovie(std::string item) {
 	// Search correct index for item
 	unsigned int index = bSearchMovie(item);
-		
+	
+	// If index out of bounds, return false
+	if (index < 0 || index >= movieList.size()) {
+		return false;
+	}
+
 	// If found, return true
 	if (movieList[index].compare(item) == 0) {
 		return true;
@@ -73,8 +92,10 @@ bool ActorNode::insertMovie(std::string item) {
 	vector<std::string>::iterator itr = movieList.begin();
 		
 	// If already exists, return false
-	if (movieList[index].compare(item) == 0) {
-		return false;
+	if (index >= 0 && index < movieList.size()) {
+		if (movieList[index].compare(item) == 0) {
+			return false;
+		}
 	}
 
 	// Traverse to correct index
