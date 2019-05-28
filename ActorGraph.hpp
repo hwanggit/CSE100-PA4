@@ -24,15 +24,15 @@ using namespace std;
  */
 class ActorGraph {
 	
-	typedef std::pair <ActorEdge *, ActorNode *> branch; // Define an edge-node 
- 
  protected:
 	
 	// To store cast for each movie, and for each year
-	std::unordered_map<std::string, vector<ActorNode *>> movie_graph;
 	std::unordered_map<std::string, int> year_graph;
+	std::unordered_map<std::string, std::string> title_graph;
 
  public:
+	
+	std::unordered_map<std::string, vector<ActorNode *>> movie_graph;
    
 	vector<ActorNode *> actors; // BSA to store actor names
 	vector<ActorEdge *> edges; // BSA to store movie and year
@@ -48,10 +48,10 @@ class ActorGraph {
 	/**
 	 * Helper method to binary search for given node in actor list 
 	 */
-	unsigned int bSearchActor(ActorNode * item);
+	unsigned int bSearchActor(ActorNode * item, vector<ActorNode *> & list);
 	
 	/** Insert item into sorted position based on binary search*/
-	bool insertActor(ActorNode * item);
+	bool insertActor(ActorNode * item, vector<ActorNode *> & list);
 
 	/** Return the pointer to the actor if the given actor is found*/
 	ActorNode * findActor(ActorNode * item);
@@ -77,6 +77,7 @@ class ActorGraph {
 	void findShortestPath(vector<std::string> & start,vector<std::string> & end,
 							ofstream & out);
 };
+
 #endif // ACTORGRAPH_HPP
 
 /** BELOW IS EXTRA DO NOT UNCOMMENT */

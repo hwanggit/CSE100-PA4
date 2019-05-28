@@ -31,6 +31,9 @@ public:
 	ActorNode * actor1;
 	ActorNode * actor2;	
 	
+	// Define previous pointer for use in BFS
+	ActorNode * prevNode;
+
 	// Constructor for ActorEdge, initializes member variables
     ActorEdge(std::string name, int year, ActorNode * node1, ActorNode * node2);
 };

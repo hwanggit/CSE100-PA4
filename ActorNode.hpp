@@ -24,8 +24,6 @@ using namespace std;
  */
 class ActorNode {
 	
-	typedef std::pair <ActorEdge *, ActorNode *> branch; // Define an edge-node 
-	
 public:
 
 	// Name of actor
@@ -34,17 +32,17 @@ public:
 	// Determine if visited
 	bool isVisited;
 
-	// Pointer to previous edge-node, used in BFS
-	branch * prev;
+	// Branch to previous edge-node, used in BFS
+	ActorEdge * prevEdge;
 
 	// Define adjacent edges and nodes, each entry is an edge-node pair
-	vector<branch *> adjEdges;
+	vector<ActorEdge *> adjEdges;
 
 	// Constructor for ActorNode, initializes member variables
     ActorNode(std::string nameInput);
 	
 	// Adds a branch to the adjEdges of node
-	void addNeighbor(ActorEdge * edgeIn, ActorNode * nodeIn);
+	void addNeighbor(ActorEdge * edgeIn);
 
 	// Check if two nodes are equal
 	int checkEqual(ActorNode * other);

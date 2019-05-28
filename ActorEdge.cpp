@@ -18,6 +18,7 @@ ActorEdge::ActorEdge(std::string name, int year, ActorNode * node1,
 	// set actors to passed in variables
 	actor1 = node1;
 	actor2 = node2;
+	prevNode = nullptr;
 }
 
 /* BELOW IS EXTRA DO NOT UNCOMMENT */
