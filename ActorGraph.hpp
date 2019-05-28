@@ -28,12 +28,11 @@ class ActorGraph {
 	
 	// To store cast for each movie, and for each year
 	std::unordered_map<std::string, int> year_graph;
-	std::unordered_map<std::string, std::string> title_graph;
-
- public:
-	
+	std::unordered_map<std::string, std::string> title_graph;	
 	std::unordered_map<std::string, vector<ActorNode *>> movie_graph;
    
+ public:
+
 	vector<ActorNode *> actors; // BSA to store actor names
 	vector<ActorEdge *> edges; // BSA to store movie and year
 	
