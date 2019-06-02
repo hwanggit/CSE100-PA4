@@ -14,6 +14,7 @@ using namespace std;
 
 // Constructor for ActorNode, initializes member variables
 ActorNode::ActorNode(std::string nameInput) : name(nameInput),isVisited(false){
+	distance = 0;
 	prevEdge = nullptr;
 }
 

@@ -30,7 +30,14 @@ class ActorGraph {
 	std::unordered_map<std::string, int> year_graph;
 	std::unordered_map<std::string, std::string> title_graph;	
 	std::unordered_map<std::string, vector<ActorNode *>> movie_graph;
-   
+	
+	// Define comparison function for dijkstra priority queue
+	struct compareNode {
+		bool operator() (ActorNode * p1, ActorNode * p2) {
+			return p2->distance < p1->distance;
+		}
+	};
+	   
  public:
 
 	vector<ActorNode *> actors; // BSA to store actor names
@@ -70,11 +77,12 @@ class ActorGraph {
 	void buildMap();
 
 	// Method to read pairs from test pairs file and print out shortest path
-	bool loadPairs(const char * in_file, ofstream & out);
+	bool loadPairs(const char * in_file, ofstream & out, bool weighted);
 
 	// Helper method to BFS traverse graph and find closest path
 	void findShortestPath(vector<std::string> & start,vector<std::string> & end,
-							ofstream & out);
+							ofstream & out, bool weighted);
+
 };
 
 #endif // ACTORGRAPH_HPP

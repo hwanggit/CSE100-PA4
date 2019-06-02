@@ -31,6 +31,9 @@ public:
 	
 	// Determine if visited
 	bool isVisited;
+	
+	// Distance, used in Dijkstra's algorithm
+	int distance;
 
 	// Branch to previous edge-node, used in BFS
 	ActorEdge * prevEdge;

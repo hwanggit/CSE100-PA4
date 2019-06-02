@@ -10,11 +10,17 @@
 #include "ActorNode.hpp"
 #include "ActorEdge.hpp"
 
+#define WEIGHTED 2019
+
 using namespace std;
 
 // Constructor for ActorEdge, initializes member variables
 ActorEdge::ActorEdge(std::string name, int year, ActorNode * node1, 
-						ActorNode * node2) : movieName(name), year(year) {
+						ActorNode * node2) : movieName(name), year(year){
+	
+	// Set weight of edge
+	weight = 1 + (WEIGHTED - year);
+	
 	// set actors to passed in variables
 	actor1 = node1;
 	actor2 = node2;

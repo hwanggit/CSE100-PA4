@@ -26,7 +26,10 @@ public:
 
 	// Name the year
 	int year;
-	
+
+	// Weight of edge
+	int weight;
+
 	// Pointers to two connected actors
 	ActorNode * actor1;
 	ActorNode * actor2;	

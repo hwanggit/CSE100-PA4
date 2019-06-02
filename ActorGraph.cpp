@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <climits>
 #include <queue>
 #include "ActorNode.cpp"
 #include "ActorEdge.cpp"
@@ -207,23 +208,22 @@ void ActorGraph::buildMap() {
 			for (unsigned int j=i+1; j<currList.size(); j++) {
 				// Create new edge and push to list of edges 
 				ActorEdge * currEdge = new ActorEdge(title_graph[n.first], 
-														year_graph[n.first], 
-															currList[i], 
-																currList[j]);
+													   year_graph[n.first],
+														  currList[i], 
+															 currList[j]);
 				// Push to list of accumulating edges
 				edges.push_back(currEdge);
 
 				// Add edge as neighbor of each linked node
 				currList[i]->addNeighbor(currEdge);
-				currList[j]->addNeighbor(currEdge);
-					
+				currList[j]->addNeighbor(currEdge);			
 			}
 		}
 	}
 }
 
 // Method to read pairs from test pairs file and print out shortest path
-bool ActorGraph::loadPairs(const char * in_file, ofstream & out) {
+bool ActorGraph::loadPairs(const char * in_file, ofstream & out, bool weighted){
 	 // Initialize the file stream
     ifstream infile(in_file);
 
@@ -283,7 +283,7 @@ bool ActorGraph::loadPairs(const char * in_file, ofstream & out) {
 	out << "(actor)--[movie#@year]-->(actor)--...\n";
 
     // Call helper method to build graph
-	findShortestPath(start, end, out);
+	findShortestPath(start, end, out, weighted);
 	
 	// Close file and return
 	infile.close();
@@ -292,16 +292,31 @@ bool ActorGraph::loadPairs(const char * in_file, ofstream & out) {
 
 // Helper method to BFS traverse graph and find closest path
 void ActorGraph::findShortestPath(vector<std::string> & start, 
-									vector<std::string> & end, ofstream & out) {
+									vector<std::string> & end, ofstream & out, 
+										bool weighted) {
 	// For each query, do a BFS search
 	for (unsigned int i=0; i<start.size(); i++) {
+	
+		// Reset all edges
+		for (unsigned int n=0; n<edges.size(); n++) {
+			// Set all edges, and children nodes to nullptr
+			edges[n]->prevNode = nullptr;
+			edges[n]->actor1->prevEdge = nullptr;
+			edges[n]->actor2->prevEdge = nullptr;
+		
+			// Set all linked visited flags to false
+			edges[n]->actor1->isVisited = false;
+			edges[n]->actor2->isVisited = false;
+			
+			// Set dist to INF
+			edges[n]->actor1->distance = INT_MAX;
+			edges[n]->actor2->distance = INT_MAX;
+		}
+		
 		// Print computing statements
 		cout << "Computing path for (" << start[i] << ") -> (" << end[i];
 		cout << ")" << endl;
 		
-		// Initialize queue for BFS
-		queue <ActorNode *> toExplore;
-
 		// Create starting nodes for start and end 
 		ActorNode * start_q = new ActorNode(start[i]);
 		ActorNode * end_q = new ActorNode(end[i]);
@@ -321,57 +336,122 @@ void ActorGraph::findShortestPath(vector<std::string> & start,
 		// To check if found
 		bool checkFound = false;
 		ActorNode * lastNode;
-
-		// create new branch for start and push start to queue
-		currBegin->isVisited = true;
-		toExplore.push(currBegin);
-		
-		// While not empty, keep exploring
-		while (!toExplore.empty()) {
-			// Get first of queue
-			ActorNode * next = toExplore.front();
-			toExplore.pop();
+	
+		// Initialize queue for BFS
+		if (weighted) {
+			// If weighted, define pQueue
+			priority_queue<ActorNode *,vector<ActorNode *>,compareNode> explore;
 			
-			// Add neighbors to queue
-			for (unsigned int k=0; k<(next->adjEdges).size(); k++) {
-				// Set the previous node of adjacent edge
-				ActorEdge * currEdge = next->adjEdges[k];
+			// create new branch for start and push start to queue
+			currBegin->distance = 0;
 
-				// Get current neighbor of next
-				ActorNode * currNeighbor;
+			// Create a dijPair to push
+			explore.push(currBegin);
+			
+			// While not empty, keep exploring
+			while (!explore.empty()) {
+				// Get first of queue
+				ActorNode * next = explore.top();
+				explore.pop();
+				
+				// If destination is found, break
+				if (end_q->checkEqual(next) == 0) {
+					// Set found flag to true
+					checkFound = true;
+					
+					// Set last branch to found and set previous to next
+					lastNode = next;
+					break;
+				}		
+				
+				// If next not visited, set visited
+				if (next->isVisited == false) {
+					// Set done to true
+					next->isVisited = true;
 
-				// Set neighbor
-				if (next->checkEqual(currEdge->actor1) == 0) {
-					currNeighbor = currEdge->actor2;
-				}
-				else {
-					currNeighbor = currEdge->actor1;
-				}
-				
-				// If not visited, set to visited, and push to queue
-				if (currNeighbor->isVisited == false) {
-					currNeighbor->isVisited = true;
-					currNeighbor->prevEdge = currEdge;
-					currEdge->prevNode = next;
-					toExplore.push(currNeighbor);
-				
-					// If destination is found, empty queue and break
-					if (end_q->checkEqual(currNeighbor) == 0) {
-						// Empty queue
-						while (!toExplore.empty()) {
-							toExplore.pop();
+					// Add neighbors to queue
+					for (unsigned int k=0; k<(next->adjEdges).size(); k++) {
+						
+						// Set the previous node of adjacent edge
+						ActorEdge * currEdge = next->adjEdges[k];
+					
+						// Get distance to w through next
+						int dist_to_adj = next->distance + currEdge->weight;
+
+						// Get current neighbor of next
+						ActorNode * currNeighbor;
+
+						// Set neighbor
+						if (next->checkEqual(currEdge->actor1) == 0) {
+							currNeighbor = currEdge->actor2;
 						}
-						// Set found flag to true
-						checkFound = true;
-
-						// Set last branch to found and set previous to next
-						lastNode = currNeighbor;
-						break;
-					}	
+						else {
+							currNeighbor = currEdge->actor1;
+						}
+						
+						// If c is less than currNeighbor's distance,enqueue
+						if (dist_to_adj < (currNeighbor->distance)) {
+							currNeighbor->prevEdge = currEdge;
+							currEdge->prevNode = next;
+							currNeighbor->distance = dist_to_adj;
+							explore.push(currNeighbor);						
+						}
+					}
 				}
-			}
+			}	
 		}
+		else {
+			// If unweighted, define queue to explore
+			queue <ActorNode *> toExplore;
+			
+			// create new branch for start and push start to queue
+			currBegin->isVisited = true;
+			toExplore.push(currBegin);
+			
+			// While not empty, keep exploring
+			while (!toExplore.empty()) {
+				// Get first of queue
+				ActorNode * next = toExplore.front();
+				toExplore.pop();
+				
+				// If destination is found, break
+				if (end_q->checkEqual(next) == 0) {
+					// Set found flag to true
+					checkFound = true;
+
+					// Set last branch to found and set previous to next
+					lastNode = next;
+					break;
+				}	
 		
+				// Add neighbors to queue
+				for (unsigned int k=0; k<(next->adjEdges).size(); k++) {
+					
+					// Set the previous node of adjacent edge
+					ActorEdge * currEdge = next->adjEdges[k];
+
+					// Get current neighbor of next
+					ActorNode * currNeighbor;
+
+					// Set neighbor
+					if (next->checkEqual(currEdge->actor1) == 0) {
+						currNeighbor = currEdge->actor2;
+					}
+					else {
+						currNeighbor = currEdge->actor1;
+					}
+					
+					// If not visited, set to visited, and push to queue
+					if (currNeighbor->isVisited == false) {
+						currNeighbor->isVisited = true;
+						currNeighbor->prevEdge = currEdge;
+						currEdge->prevNode = next;
+						toExplore.push(currNeighbor);
+					}
+				}
+			}	
+		}
+	
 		// If not found, print failed
 		if (!checkFound) {
 			out << endl;
@@ -411,23 +491,6 @@ void ActorGraph::findShortestPath(vector<std::string> & start,
 			out << "(" << path[0]->name << ")" << endl;
 		}
 	
-		// Set all nodes to not visited
-		for (unsigned int m=0; m<actors.size(); m++) {
-			// Set previous to null
-			actors[m]->prevEdge = nullptr;
-			actors[m]->isVisited = false;
-		}	
-		for (unsigned int n=0; n<edges.size(); n++) {
-			// Set all edges, and children nodes to nullptr
-			edges[n]->prevNode = nullptr;
-			edges[n]->actor1->prevEdge = nullptr;
-			edges[n]->actor2->prevEdge = nullptr;
-			
-			// Set all linked visited flags to false
-			edges[n]->actor1->isVisited = false;
-			edges[n]->actor2->isVisited = false;
-		}
-		
 		// Delete initial pointers, and newStart
 		delete(start_q);
 		delete(end_q);

@@ -50,10 +50,10 @@ int main(int argc, char** argv)
 	// If weighted, load with 1, else 0
 	if (weight.compare("w") == 0) {
 		// Read file and initialize actorGraph
-		imdb->loadFromFile(inputFile, 1);	
+		imdb->loadFromFile(inputFile, true);	
 	}
 	else {
-		imdb->loadFromFile(inputFile, 0);	
+		imdb->loadFromFile(inputFile, false);	
 	}
 
 	cout << "done" << endl;
@@ -67,8 +67,15 @@ int main(int argc, char** argv)
 	// Open output file
 	ofstream outFile (outputFile);
 
-	// load pairs and print shortest paths
-	imdb->loadPairs(testPairs, outFile);
+	// If weighted, load with 1, else 0
+	if (weight.compare("w") == 0) {
+		// load pairs and print shortest paths
+		imdb->loadPairs(testPairs, outFile, true);	
+	}
+	else {
+		// load pairs and print shortest paths
+		imdb->loadPairs(testPairs, outFile, false);	
+	}	
 	
 	// Deallocate imdb
 	delete imdb;
