@@ -14,8 +14,10 @@ using namespace std;
 
 // Constructor for ActorNode, initializes member variables
 ActorNode::ActorNode(std::string nameInput) : name(nameInput),isVisited(false){
+	rank = 0;
 	distance = 0;
 	prevEdge = nullptr;
+	parent = nullptr;
 }
 
 // Add edge to movies list

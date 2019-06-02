@@ -15,12 +15,14 @@ else
     LDFLAGS += -g
 endif
 
-all: pathfinder
+all: pathfinder movietraveler
 
 # include what ever source code *.hpp files pathfinder relies on (these are 
 # merely the ones that were used in the solution)
 
 pathfinder: ActorGraph.o
+
+movietraveler: DisjointSet.o ActorGraph.o
 
 # include what ever source code *.hpp files ActorGraph relies on (these are
 # merely the ones that were used in the solution)
@@ -29,6 +31,8 @@ pathfinder: ActorGraph.o
 # file that is already included with class/method headers
 
 ActorGraph.o: ActorNode.o ActorEdge.o ActorGraph.hpp ActorGraph.cpp
+
+DisjointSet.o: ActorNode.o DisjointSet.hpp DisjointSet.cpp
 
 ActorEdge.o: ActorEdge.hpp ActorEdge.cpp
 

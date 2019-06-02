@@ -37,6 +37,12 @@ public:
 
 	// Branch to previous edge-node, used in BFS
 	ActorEdge * prevEdge;
+	
+	// Parent pointer to aide in MST building
+	ActorNode * parent;
+	
+	// Rank of node for MST building
+	int rank;
 
 	// Define adjacent edges and nodes, each entry is an edge-node pair
 	vector<ActorEdge *> adjEdges;
