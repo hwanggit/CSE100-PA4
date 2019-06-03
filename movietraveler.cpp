@@ -42,12 +42,8 @@ int main(int argc, char** argv)
 	// Make new actorGraph
 	ActorGraph * imdb = new ActorGraph();
 
-	cout << "Reading " << inputFile << " ..." << endl;
-	
 	// Read file and initialize actorGraph
 	imdb->loadFromFile(inputFile, true);	
-
-	cout << "done" << endl;
 	
 	// Initialize a disjoint set
 	DisjointSet * actorSet = new DisjointSet(imdb->actors);
