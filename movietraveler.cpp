@@ -19,6 +19,9 @@ using namespace std;
 
 // Comparator function for ActorEdge to sort by weight
 bool compareEdge (ActorEdge * p1, ActorEdge * p2) {
+	if (p1->weight == p2->weight) {
+		return (p1->movieName).compare(p2->movieName) < 0;
+	}
 	return p1->weight < p2->weight;
 }
 	
@@ -73,16 +76,6 @@ int main(int argc, char** argv)
 		std::string actor1 = currEdge->actor1->name;
 		std::string actor2 = currEdge->actor2->name;
 		
-		// Check if algorithm is finished
-		if (actorSet->checkFinished()) {
-			// Increment nodes connected
-			nodesConnected++;
-			outFile << "#NODE CONNECTED: " << nodesConnected << endl;
-			outFile << "#EDGE CHOSEN: " << edgesConnected << endl;
-			outFile << "TOTAL EDGE WEIGHTS: " << totalWeight << endl;
-			break;
-		}
-		
 		// Run union on all minimum edges
 		if (actorSet->Union(actor1, actor2)) {
 			// Actor 1 Link
@@ -99,8 +92,20 @@ int main(int argc, char** argv)
 			// Increment total weight
 			totalWeight += (currEdge->weight);
 		}
+		
+		// Check if algorithm is finished
+		if (actorSet->checkFinished()) {
+			// Increment nodes connected
+			nodesConnected++;
+			break;
+		}	
 	}
 	
+	// Print results
+	outFile << "#NODE CONNECTED: " << nodesConnected << endl;
+	outFile << "#EDGE CHOSEN: " << edgesConnected << endl;
+	outFile << "TOTAL EDGE WEIGHTS: " << totalWeight << endl;
+			
 	// Close output file
 	outFile.close();
 
