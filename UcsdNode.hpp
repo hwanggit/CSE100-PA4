@@ -37,6 +37,9 @@ public:
 	
 	// Distance, used in A* algorithm
 	double distance;
+	
+	// Queue Value for A* algorithm
+	double queueVal;
 
 	// Branch to previous node, used in BFS
 	UcsdNode * prevNode;

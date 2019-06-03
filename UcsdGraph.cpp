@@ -15,6 +15,8 @@
 #include "UcsdNode.cpp"
 #include "UcsdGraph.hpp"
 
+#define HCONST 1 // Constant for heuristic function
+
 using namespace std;
 
 /**
@@ -219,6 +221,9 @@ void UcsdGraph::findShortestPath(vector<std::string> & start,
 		
 		// create new branch for start and push start to queue
 		currBegin->distance = 0;
+		currBegin->queueVal = 0;
+
+		// Create node pair and push to queue
 		explore.push(currBegin);
 		
 		// While not empty, keep exploring
@@ -256,10 +261,15 @@ void UcsdGraph::findShortestPath(vector<std::string> & start,
 						currNeighbor->prevNode = next;
 						
 						// Calculate heuristic
-						double h_x = heuristic(currNeighbor, end_q, 4);
+						double h_x = heuristic(currNeighbor, end_q, HCONST);
 						
 						// Set neighbor's distance
-						currNeighbor->distance = dist_to_adj + h_x;
+						currNeighbor->distance = dist_to_adj;
+
+						// Set queueVal
+						currNeighbor->queueVal = dist_to_adj + h_x;
+
+						// Create node pair to push
 						explore.push(currNeighbor);						
 					}
 				}
@@ -301,8 +311,8 @@ void UcsdGraph::findShortestPath(vector<std::string> & start,
 // Heuristic function to calculate distance bewteen two nodes
 double UcsdGraph::heuristic(UcsdNode * node1, UcsdNode * node2, int constant) {
 	// Get the square difference between coordinates
-	int squareDiffX = std::pow((node2->xCoord - node1->xCoord), 2);	
-	int squareDiffY = std::pow((node2->yCoord - node1->yCoord), 2);
+	double squareDiffX = std::pow((node2->xCoord - node1->xCoord), 2);	
+	double squareDiffY = std::pow((node2->yCoord - node1->yCoord), 2);
 
 	// Return square root of sum multiply by constant
 	return constant * std::sqrt(squareDiffX + squareDiffY);

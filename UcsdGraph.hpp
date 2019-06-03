@@ -29,7 +29,7 @@ class UcsdGraph {
 	// Define comparison function for dijkstra priority queue
 	struct compareNode {
 		bool operator() (UcsdNode * p1, UcsdNode * p2) {
-			return p2->distance < p1->distance;
+			return p2->queueVal < p1->queueVal;
 		}
 	};
 	   
