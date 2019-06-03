@@ -1,5 +1,4 @@
 myinput
 myoutput
 .gitignore
-makefilecopy
 *.o
