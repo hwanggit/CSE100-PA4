@@ -169,8 +169,7 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges){
 			currNode = new ActorNode(actor_name);
 			
 			// Insert actor into list
-			actor_graph[actor_name] = currNode;
-			actors.push_back(currNode);
+			insertActor(currNode, actors);
 		}
 	
 		// Add entry to movie_graph
@@ -319,13 +318,16 @@ void ActorGraph::findShortestPath(vector<std::string> & start,
 		cout << ")" << endl;
 		
 		// Create starting nodes for start and end 
-		ActorNode * currBegin = actor_graph[start[i]];
-		ActorNode * end_q = actor_graph[end[i]];
+		ActorNode * start_q = new ActorNode(start[i]);
+		ActorNode * end_q = new ActorNode(end[i]);
+		ActorNode * currBegin = findActor(start_q);
 		
 		// If not found, print failed
 		if (currBegin == nullptr) {
 			out << endl;
 			cerr << "Failed to locate node '" << start[i] << "'" << endl;
+			delete(start_q);
+			delete(end_q);
 			continue;
 		}
 		
@@ -486,6 +488,10 @@ void ActorGraph::findShortestPath(vector<std::string> & start,
 			// Print node
 			out << "(" << path[0]->name << ")" << endl;
 		}
+		
+		// Delete start and end
+		delete(start_q);
+		delete(end_q);
 	}
 
 	// Close file stream
