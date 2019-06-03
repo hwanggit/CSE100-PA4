@@ -320,8 +320,6 @@ void ActorGraph::findShortestPath(vector<std::string> & start,
 		// Create starting nodes for start and end 
 		ActorNode * start_q = new ActorNode(start[i]);
 		ActorNode * end_q = new ActorNode(end[i]);
-
-		// Find starting point
 		ActorNode * currBegin = findActor(start_q);
 		
 		// If not found, print failed
@@ -490,8 +488,8 @@ void ActorGraph::findShortestPath(vector<std::string> & start,
 			// Print node
 			out << "(" << path[0]->name << ")" << endl;
 		}
-	
-		// Delete initial pointers, and newStart
+		
+		// Delete start and end
 		delete(start_q);
 		delete(end_q);
 	}

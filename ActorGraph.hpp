@@ -30,6 +30,7 @@ class ActorGraph {
 	std::unordered_map<std::string, int> year_graph;
 	std::unordered_map<std::string, std::string> title_graph;	
 	std::unordered_map<std::string, vector<ActorNode *>> movie_graph;
+	std::unordered_map<std::string, ActorNode *> actor_graph;
 	
 	// Define comparison function for dijkstra priority queue
 	struct compareNode {
