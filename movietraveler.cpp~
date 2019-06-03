@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 			nodesConnected++;
 			outFile << "#NODE CONNECTED: " << nodesConnected << endl;
 			outFile << "#EDGE CHOSEN: " << edgesConnected << endl;
-			outFile << "TOTAL EDGE WEIGHTS: " << totalWeight << endl;
+			outFile << "TOTAL EDGE WEIGHT: " << totalWeight << endl;
 			break;
 		}
 		
